@@ -1,7 +1,8 @@
 # Functional Programming in Scala (in Idris)
 
 >   If Scala was the only language I had tried FP with, then I would hate FP too!
->   *Edward Kmett*
+>
+>   -- *Edward Kmett*
 
 Well its not a verbatim quote, but I think he said something along those lines and I would agree on that point.
 
