@@ -1,4 +1,4 @@
-# Functional Programming in Scala (in Idris)
+# Functional Programming in Scala (in Idris) [![Gitter chat](https://badges.gitter.im/domdere/fp-in-idris.png)](https://gitter.im/domdere/fp-in-idris)
 
 >   If Scala was the only language I had tried FP with, then I would hate FP too!
 >
