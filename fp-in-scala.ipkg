@@ -1,5 +1,6 @@
 package fpInIdris
 
-modules = GettingStarted
+modules =   GettingStarted
+        ,   FunctionalDataStructures
 
 sourcedir = src
