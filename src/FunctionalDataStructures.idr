@@ -268,7 +268,7 @@ treeMapCompositionProof f g (Branch left right) =
 total
 foldTree : (b -> b -> b) -> (a -> b) -> Tree a -> b
 foldTree _ f (Leaf x)             = f x
-foldTree f g (Branch left right)  = f (foldTree f g left) (foldTree f g right)
+foldTree f g (Branch left right)  = (f `on` (foldTree f g)) left right
 
 total
 foldTreeIdProof : (t : Tree a) -> foldTree Branch Leaf t = t
