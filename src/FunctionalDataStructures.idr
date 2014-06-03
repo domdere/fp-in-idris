@@ -147,6 +147,23 @@ zipWith f (x :: xs) (y :: ys) = (f x y) :: zipWith f xs ys
 addElements : (Num a) => List a -> List a -> List a
 addElements = zipWith (+)
 
+-- Exercise 24
+
+-- Returns True if the first argument is a prefix of the second
+isPrefix : (Eq a) => List a -> List a -> Bool
+isPrefix Nil _ = True
+isPrefix _ Nil = False
+isPrefix (x::xs) (y::ys) = x == y && (isPrefix xs ys)
+
+app_prefix_proof : (Eq a) => (xs : List a) -> (ys : List a) -> isPrefix xs (xs ++ ys) = True
+app_prefix_proof Nil ys = ?app_prefix_proof_base
+app_prefix_proof (x :: xs) ys =
+    let
+        ih = app_prefix_proof xs ys
+    in
+        ?app_prefix_proof_ind
+
+
 ---------- Proofs ----------
 
 baseCase = proof
