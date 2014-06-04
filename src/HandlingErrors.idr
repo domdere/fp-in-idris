@@ -33,6 +33,17 @@ total
 optionApply : Option (a -> b) -> Option a -> Option b
 optionApply = optionLift2 id
 
+-- Fold for an option.
+-- for ma : Option a,
+-- foldOption ma : a -> a
+-- If its None then it amounts to (a -> a), it can only be id
+-- If its (Some thing) then we have a special `a` we can use and the possibilities expand to `const thing` as well
+-- Its a pretty good instance of the pairing between id and const, they appear together pretty frequently
+--
+foldOption : Option a -> a -> a
+foldOption None     = id
+foldOption (Some x) = const x
+
 -- Instances
 
 instance Functor Option where
