@@ -53,7 +53,7 @@ instance Monad Option where
 
 total
 natToFloat : Nat -> Float
-natToFloat O      = 0.0
+natToFloat Z      = 0.0
 natToFloat (S n)  = 1.0 + (natToFloat n)
 
 --natToFloatIncProof : (n : Nat) -> natToFloat (n + 1) = 1.0 + (natToFloat n)
@@ -161,6 +161,9 @@ eitherSequence = eitherTraverse id
 
 -- Exercise 8
 
+-- This is Either but with the ability to accumulate errors rather than dropping them all after the first
+-- It only goes up to Applicative as this behaviour is no longer compatible with the Monad laws
+
 data AccValidation e a =
         Fail e
     |   Pass a
@@ -183,8 +186,9 @@ accApply (Pass f) (Pass x)        = Pass (f x)
 instance Functor (AccValidation e) where
     map = accMap
 
-instance Applicative (AccValidation e) where
-    pure 
+instance (Semigroup e) => Applicative (AccValidation e) where
+    pure = Pass
+    (<$>) = accApply
 
 ---------- Proofs ----------
 
