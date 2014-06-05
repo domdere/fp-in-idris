@@ -33,28 +33,49 @@ total
 optionApply : Option (a -> b) -> Option a -> Option b
 optionApply = optionLift2 id
 
--- Fold for an option.
 -- for ma : Option a,
 -- foldOption ma : a -> a
 -- If its None then it amounts to (a -> a), it can only be id
 -- If its (Some thing) then we have a special `a` we can use and the possibilities expand to `const thing` as well
 -- Its a pretty good instance of the pairing between id and const, they appear together pretty frequently
 --
-foldOption : Option a -> a -> a
-foldOption None     = id
-foldOption (Some x) = const x
+fromOption : Option a -> a -> a
+fromOption None     = id
+fromOption (Some x) = const x
+
+-- fold for an Option
+foldOption : (a -> b) -> b -> Option a -> b
+foldOption f x ma = fromOption (optionMap f ma) x
+
 
 -- Instances
 
 instance Functor Option where
+--  map : (a -> b) -> f a -> f b
     map = optionMap
 
 instance Applicative Option where
+--  pure : a -> f a
     pure = Some
+
+--  (<$>) : f (a -> b) -> f a -> f b
     (<$>) = optionApply
 
 instance Monad Option where
+--  (>>=) : m a -> (a -> m b) -> m b
     (>>=) = optionBind
+
+instance Foldable Option where
+--  foldr : Foldable t => (a -> b -> b) -> b -> t a -> b
+    foldr f y = foldOption (\x => f x y) y
+
+--  foldl : Foldable t => (b -> a -> b) -> b -> t a -> b
+    foldl f y = foldOption (\x => f y x) y
+
+
+instance Traversable Option where
+--  traverse : Traversable t => Applicative f => (a -> f b) -> t a -> f (t b)
+    traverse f = foldOption (\x => map Some (f x)) (pure None)
 
 -- Exercises
 
