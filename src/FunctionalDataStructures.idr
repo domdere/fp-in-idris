@@ -332,72 +332,72 @@ mapByFoldIsMapProof f (Branch left right) =
 
 ---------- Proofs ----------
 
-FunctionalDataStructures.mapByFoldIsMapProofBase = proof
+mapByFoldIsMapProofBase = proof
   intros
   refine refl
 
 
-FunctionalDataStructures.mapByFoldIsMapProofInd = proof
-  intros
-  rewrite ihLeft
-  rewrite ihRight
-  refine refl
-
-
-FunctionalDataStructures.foldMaxIsMaxProofBase = proof
-  intros
-  refine refl
-
-
-FunctionalDataStructures.foldMaxIsMaxProofInd = proof
+mapByFoldIsMapProofInd = proof
   intros
   rewrite ihLeft
   rewrite ihRight
   refine refl
 
 
-FunctionalDataStructures.foldSizeIsSizeProofBase = proof
+foldMaxIsMaxProofBase = proof
   intros
   refine refl
 
 
-FunctionalDataStructures.foldSizeIsSizeProofInd = proof
+foldMaxIsMaxProofInd = proof
   intros
   rewrite ihLeft
   rewrite ihRight
   refine refl
 
 
-FunctionalDataStructures.foldTreeIdProofBase = proof
+foldSizeIsSizeProofBase = proof
   intros
   refine refl
 
 
-FunctionalDataStructures.foldTreeIdProofInd = proof
+foldSizeIsSizeProofInd = proof
+  intros
+  rewrite ihLeft
+  rewrite ihRight
+  refine refl
+
+
+foldTreeIdProofBase = proof
+  intros
+  refine refl
+
+
+foldTreeIdProofInd = proof
   intros
   rewrite sym ihLeft
   rewrite sym ihRight
   refine refl
 
 
-FunctionalDataStructures.treeMapCompositionProofInd = proof
+treeMapCompositionProofInd = proof
   intros
   rewrite sym ihLeft
   rewrite sym ihRight
   refine refl
 
 
-FunctionalDataStructures.treeMapCompositionProofBase = proof
+treeMapCompositionProofBase = proof
   intros
   refine refl
 
 
-FunctionalDataStructures.treeMapIdProofBase = proof
+treeMapIdProofBase = proof
   intros
   refine refl
 
 
-FunctionalDataStructures.treeMapIdProofInd = proof
+treeMapIdProofInd = proof
   intros
   rewrite sym ihLeft
   rewrite sym ihRight

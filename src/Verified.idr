@@ -17,6 +17,7 @@ class Applicative f => VerifiedApplicative (f : Type -> Type) where
     total applicativeHomomorphism : (k : a -> b) -> (x : a) -> pure k <$> pure x = pure (k x)
     total applicativeInterchange  : (u : f (a -> b)) -> (y : a) -> (u <$> (pure y)) = (pure (flip apply y) <$> u)
 
+infixr 1 >=>
 
 ||| Kleisli Composition
 (>=>) : Monad m => (a -> m b) -> (b -> m c) -> a -> m c
