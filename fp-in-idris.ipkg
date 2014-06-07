@@ -3,5 +3,6 @@ package fpInIdris
 modules =   GettingStarted
         ,   FunctionalDataStructures
         ,   HandlingErrors
+        ,   Verified
 
 sourcedir = src
