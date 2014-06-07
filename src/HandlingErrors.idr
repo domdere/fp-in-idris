@@ -1,21 +1,61 @@
 module HandlingErrors
 
+import Verified
+
 -- The Maybe Type
 
 data Option a =
         None
     |   Some a
 
+-- Some Option based propositions, to prove some toy propositions
+-- In the REPL you can try these:
+-- > contains (the Nat 4) None
+-- > contains (the Nat 4) (Some 3)
+-- > contains (the Nat 4) (Some 4)
+--
+using (x : a)
+    data OptionContains : a -> Option a -> Type where
+        Contains : OptionContains x (Some x)
+
+    instance Uninhabited (OptionContains {a} x None) where
+        uninhabited Contains impossible
+
+    total
+    contains : DecEq a => (x : a) -> (my : Option a) -> Dec (OptionContains x my)
+    contains x None = No absurd
+    contains x (Some y) with (decEq x y)
+        contains x (Some x) | (Yes refl)  = Yes Contains
+        contains x (Some y) | (No contra) = No (mkNo contra)
+            where
+                mkNo : {x' : a} -> {y' : a} -> ((x' = y') -> _|_) -> OptionContains x' (Some y') -> _|_
+                mkNo f Contains = f refl
+
+
+total
+optionLemma1 : (x : a) -> (y : a) -> (cont : OptionContains x (Some y)) -> x = y
+optionLemma1 x y = ?optionLemma1Proof
+
 total
 optionMap : (a -> b) -> Option a -> Option b
 optionMap _ None      = None
 optionMap f (Some x)  = Some (f x)
+
+-- A toy lemma, this result could be expressed and proven without OptionContains, but i'm curious to try it
+optionMapLemma : (f : a -> b) -> (x : a) -> (ma : Option a) -> OptionContains x ma -> OptionContains (f x) (optionMap f ma)
+optionMapLemma f x None     = ?optionMapLemmaProofNone
+optionMapLemma f x (Some y) = ?optionMapLemmaProofSome
 
 total
 optionJoin : Option (Option a) -> Option a
 optionJoin None             = None
 optionJoin (Some None)      = None
 optionJoin (Some (Some x))  = Some x
+
+total
+optionJoinSome : (x : Option a) -> optionJoin (Some x) = x
+optionJoinSome None     = ?optionJoinSomeNone
+optionJoinSome (Some y) = ?optionJoinSomeProofSome
 
 total
 optionBind' : (a -> Option b) -> Option a -> Option b
@@ -54,6 +94,13 @@ instance Functor Option where
 --  map : (a -> b) -> f a -> f b
     map = optionMap
 
+instance VerifiedFunctor Option where
+    mapIdentity None      = ?mapIdentityNoneProof
+    mapIdentity (Some x)  = ?mapIdentitySomeProof
+
+    mapComposition None     = ?mapCompositionNoneProof
+    mapComposition (Some x) = ?mapCompositionSomeProof
+
 instance Applicative Option where
 --  pure : a -> f a
     pure = Some
@@ -61,9 +108,36 @@ instance Applicative Option where
 --  (<$>) : f (a -> b) -> f a -> f b
     (<$>) = optionApply
 
+instance VerifiedApplicative Option where
+    applicativePureId None      = ?applicativePureIdNoneProof
+    applicativePureId (Some x)  = ?applicativePureIdSomeProof
+
+    applicativeComposition None v w                   = ?applicativeCompositionOptionNoFunction
+    applicativeComposition (Some k) None w            = ?applicativeCompositionOptionNoFirstArg
+    applicativeComposition (Some k) (Some x) None     = ?applicativeCompositionOptionNoSecondArg
+    applicativeComposition (Some k) (Some x) (Some y) = ?applicativeCompositionOptionSomeEverything
+
+    applicativeHomomorphism k x      = ?applicativeHomomorphOption
+
+    applicativeInterchange None y     = ?applicativeInterchangeOptionNone
+    applicativeInterchange (Some k) y = ?applicativeInterchangeOptionSome
+
 instance Monad Option where
 --  (>>=) : m a -> (a -> m b) -> m b
     (>>=) = optionBind
+
+instance VerifiedMonad Option where
+    monadPureIdentityL k x = ?monadPureIdentityLOption
+
+    monadPureIdentityR None     = ?monadPureIdentityROptionNone
+    monadPureIdentityR (Some x) = ?monadPureIdentityROptionSome
+
+    monadBindAssociative k h None     = ?monadBindAssociativeNone
+    monadBindAssociative k h (Some x) = ?monadBindAssociativeSome
+
+    monadBindApplySame f None my            = ?monadBindApplySameOptionNone
+    monadBindApplySame f (Some x) None      = ?monadBindApplySameOptionSomeNone
+    monadBindApplySame f (Some x) (Some y)  = ?monadBindApplySameOptionSomeSome
 
 instance Foldable Option where
 --  foldr : Foldable t => (a -> b -> b) -> b -> t a -> b
@@ -224,12 +298,130 @@ instance (Semigroup e) => Applicative (AccValidation e) where
 
 ---------- Proofs ----------
 
-HandlingErrors.optionSequenceSameProofBase = proof
+monadBindApplySameOptionSomeNone = proof
   intros
   refine refl
 
 
-HandlingErrors.optionSequenceSameProofInd = proof
+monadBindApplySameOptionSomeSome = proof
+  intros
+  refine refl
+
+
+monadBindApplySameOptionNone = proof
+  intros
+  refine refl
+
+
+monadBindAssociativeNone = proof
+  intros
+  refine refl
+
+
+monadBindAssociativeSome = proof
+  intros
+  rewrite sym (optionJoinSome (k x))
+  rewrite sym (optionJoinSome (optionJoin (optionMap h (k x))))
+  refine refl
+
+
+monadPureIdentityROptionNone = proof
+  intros
+  refine refl
+
+
+monadPureIdentityROptionSome = proof
+  intros
+  refine refl
+
+
+monadPureIdentityLOption = proof
+  intros
+  rewrite sym (optionJoinSome (k x))
+  refine refl
+
+
+optionJoinSomeNone = proof
+  intros
+  refine refl
+
+
+optionJoinSomeProofSome = proof
+  intros
+  refine refl
+
+
+applicativeCompositionOptionNoFunction = proof
+  intros
+  refine refl
+
+
+applicativeCompositionOptionNoFirstArg = proof
+  intros
+  refine refl
+
+
+applicativeCompositionOptionNoSecondArg = proof
+  intros
+  refine refl
+
+
+applicativeCompositionOptionSomeEverything = proof
+  intros
+  refine refl
+
+
+applicativePureIdNoneProof = proof
+  intros
+  refine refl
+
+
+applicativePureIdSomeProof = proof
+  intros
+  refine refl
+
+
+applicativeHomomorphOption = proof
+  intros
+  refine refl
+
+
+applicativeInterchangeOptionNone = proof
+  intros
+  refine refl
+
+
+applicativeInterchangeOptionSome = proof
+  intros
+  refine refl
+
+
+mapCompositionNoneProof = proof
+  intros
+  refine refl
+
+
+mapCompositionSomeProof = proof
+  intros
+  refine refl
+
+
+mapIdentitySomeProof = proof
+  intros
+  refine refl
+
+
+mapIdentityNoneProof = proof
+  intros
+  refine refl
+
+
+optionSequenceSameProofBase = proof
+  intros
+  refine refl
+
+
+optionSequenceSameProofInd = proof
   intros
   refine refl
 
