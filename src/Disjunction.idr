@@ -81,6 +81,9 @@ instance Applicative MyList where
 instance Monad MyList where
     (>>=) = bindMyList
 
+testLemma1 : (x : a) -> (y : a) -> (xs : MyList a) -> (x = y) -> inList x (y ::: xs)
+testLemma1 x y xs h1 = ?testLemma1Proof
+
 mapProofProp : (f : a -> b) -> (x : a) -> (mx : MyList a) -> Type
 mapProofProp f x mx = inList x mx -> inList (f x) (mapMyList f mx)
 
@@ -90,4 +93,30 @@ mapProof f x mx = myListInd (mapProofProp f x) mx baseCase indCase
         baseCase : mapProofProp f x Nilm
         baseCase = \h1 => ?baseCaseProof
 
-        indCase x' xs' ih = \h1 => ?indCaseProof
+
+        --indCase x' xs' ih = \h1 => ?indCaseProof
+        indCase x' xs' ih = disjunctInd headEq xInTail
+            where
+                headEq h1   = ?headEqProof
+                xInTail h1  = ?xInTailProof
+
+---------- Proofs ----------
+
+headEqProof = proof
+  intros
+  refine LeftP
+  rewrite h1
+  refine refl
+
+
+baseCaseProof = proof
+  intros
+  trivial
+
+
+testLemma1Proof = proof
+  intros
+  refine LeftP
+  trivial
+
+
