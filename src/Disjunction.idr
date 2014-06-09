@@ -2,26 +2,29 @@ module Disjunction
 
 infixr 2 \/
 
-using (a : Type, b : Type, p : Type)
-    ||| A disjunction of propositions,
-    ||| A \\/ B implies that at least one of either
-    ||| A or B is true, i.e a proof for either A
-    ||| of B is a necessary and sufficient condition
-    ||| to prove A \\/ B.
+||| A disjunction of propositions,
+||| A \\/ B implies that at least one of either
+||| A or B is true, i.e a proof for either A
+||| of B is a necessary and sufficient condition
+||| to prove A \\/ B.
+|||
+data (\/) : Type -> Type -> Type where
+    ||| A Proof for A is sufficient to prove A \\/ B
+    ||| @ a A proof for the Left Proposition
     |||
-    data (\/) : Type -> Type -> Type where
-        ||| A Proof for A is sufficient to prove A \\/ B
-        LeftP   : a -> (a \/ b)
+    LeftP   : a -> (a \/ b)
 
-        ||| A Proof for B is sufficient to prove A \\/ B
-        RightP  : b -> (a \/ b)
-
-    ||| If A -> P and B -> P then (A \\/ B) -> P
+    ||| A Proof for B is sufficient to prove A \\/ B
+    ||| @ b A proof for the right proposition
     |||
-    total
-    disjunctInd : (a -> p) -> (b -> p) -> (a \/ b) -> p
-    disjunctInd l r (LeftP lprf) = l lprf
-    disjunctInd l r (RightP rprf) = r rprf
+    RightP  : b -> (a \/ b)
+
+||| If A -> P and B -> P then (A \\/ B) -> P
+|||
+total
+disjunctInd : (a -> p) -> (b -> p) -> (a \/ b) -> p
+disjunctInd l r (LeftP lprf) = l lprf
+disjunctInd l r (RightP rprf) = r rprf
 
 
 -- Test it with a list..
