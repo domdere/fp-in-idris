@@ -253,7 +253,7 @@ optionSequenceSameProof (x::xs) =
 
 -- The Either Data Type
 
-data Either' e a =
+%elim data Either' e a =
         Left' e
     |   Right' a
 
@@ -312,7 +312,7 @@ eitherSequence = eitherTraverse id
 -- This is Either but with the ability to accumulate errors rather than dropping them all after the first
 -- It only goes up to Applicative as this behaviour is no longer compatible with the Monad laws
 
-data AccValidation e a =
+%elim data AccValidation e a =
         Fail e
     |   Pass a
 
@@ -340,42 +340,21 @@ instance (Semigroup e) => Applicative (AccValidation e) where
 
 ---------- Proofs ----------
 
-HandlingErrors.monadBindAssociativeOptionNone = proof
+monadBindAssociativeOptionSome = proof
+  intros
+  let h1 = optionJoinSome (k x)
+  rewrite sym h1
+  let h2 = optionJoinSome (optionJoin (optionMap h (k x)))
+  rewrite sym h2
+  refine refl
+
+
+monadBindAssociativeOptionNone = proof
   intros
   refine refl
 
 
-HandlingErrors.monadPureIdentityROption = proof
-  intros
-  induction mx
-  compute
-  refine refl
-  intro x
-  compute
-  refine refl
-
-
-HandlingErrors.applicativeCompositionOptionAllSome = proof
-  intros
-  refine refl
-
-
-HandlingErrors.applicativeCompositionOptionWNone = proof
-  intros
-  refine refl
-
-
-HandlingErrors.applicativeCompositionOptionVNone = proof
-  intros
-  refine refl
-
-
-HandlingErrors.applicativeCompositionOptionUNone = proof
-  intros
-  refine refl
-
-
-HandlingErrors.applicativePureIdProof = proof
+monadPureIdentityROption = proof
   intros
   induction mx
   compute
@@ -385,17 +364,47 @@ HandlingErrors.applicativePureIdProof = proof
   refine refl
 
 
-HandlingErrors.applicativeHomomorphOption = proof
+applicativeCompositionOptionAllSome = proof
   intros
   refine refl
 
 
-HandlingErrors.applicativeInterchangeOptionSome = proof
+applicativeCompositionOptionWNone = proof
   intros
   refine refl
 
 
-HandlingErrors.applicativeInterchangeOptionNone = proof
+applicativeCompositionOptionVNone = proof
+  intros
+  refine refl
+
+
+applicativeCompositionOptionUNone = proof
+  intros
+  refine refl
+
+
+applicativePureIdProof = proof
+  intros
+  induction mx
+  compute
+  refine refl
+  intro x
+  compute
+  refine refl
+
+
+applicativeHomomorphOption = proof
+  intros
+  refine refl
+
+
+applicativeInterchangeOptionSome = proof
+  intros
+  refine refl
+
+
+applicativeInterchangeOptionNone = proof
   intros
   refine refl
 
