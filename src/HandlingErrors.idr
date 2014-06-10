@@ -1,10 +1,11 @@
 module HandlingErrors
 
+import Disjunction
 import Verified
 
 -- The Maybe Type
 
-data Option a =
+%elim data Option a =
         None
     |   Some a
 
@@ -48,6 +49,16 @@ using (x : a)
                 mkNo f (Contains prf) = f prf
 
 
+||| This is expressed in simpler terms using the combinators from Disjunction
+|||
+
+total
+optionContains : (DecEq) => a -> Option a -> Type
+optionContains x None     = _|_
+optionContains x (Some y) with (decEq x y)
+    optionContains x (Some x) | (Yes prf) = x = x
+    optionContains x (Some y) | (No absurd) = _|_
+
 total
 optionMap : (a -> b) -> Option a -> Option b
 optionMap _ None      = None
@@ -60,8 +71,8 @@ mappedOptionContains : (a -> b) -> a -> Option a -> Type
 mappedOptionContains f x mx = OptionContains x mx -> OptionContains (f x) (optionMap f mx)
 
 total
-optionMapLemma : (f : a -> b) -> (x : a) -> (ma : Option a) -> mappedOptionContains f x ma
-optionMapLemma f x ma = optionInd (mappedOptionContains f x) (noneCase f x) (someCase f x) ma
+optionMapLemmaHard : (f : a -> b) -> (x : a) -> (ma : Option a) -> mappedOptionContains f x ma
+optionMapLemmaHard f x ma = optionInd (mappedOptionContains f x) (noneCase f x) (someCase f x) ma
     where
         noneCase : (f : a -> b) -> (x : a) -> (mappedOptionContains f x) None
         noneCase f x = absurd
@@ -70,6 +81,9 @@ optionMapLemma f x ma = optionInd (mappedOptionContains f x) (noneCase f x) (som
         someCase f x y = \(Contains prf) => ?mappedOptionSomeContainsProof
 
 
+total
+optionMapLemmaEasy : (f : a -> b) -> (x : a) -> (ma : Option a) -> (optionContains x ma ==> optionContains (f x) (optionMap f ma))
+optionMapLemmaEasy f x ma = ?optionMapLemmaProof
 
 total
 optionJoin : Option (Option a) -> Option a

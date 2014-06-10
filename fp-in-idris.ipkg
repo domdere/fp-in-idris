@@ -4,6 +4,7 @@ modules =   Disjunction
         ,   GettingStarted
         ,   FunctionalDataStructures
         ,   HandlingErrors
+        ,   Implication
         ,   Verified
 
 sourcedir = src

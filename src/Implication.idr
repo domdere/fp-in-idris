@@ -30,6 +30,13 @@ data (<=>) : Type -> Type -> Type where
 implicationFunction : (a ==> b) -> a -> b
 implicationFunction (Implies f) = f
 
+||| "refine implicationAssumption"
+||| will refine a goal of the form ((a ==> b) ==> c)
+||| into the form (a -> b) ==> c
+|||
+implicationAssumption : ((a -> b) ==> c) -> ((a ==> b) ==> c)
+implicationAssumption (Implies f) = Implies (f . implicationFunction)
+
 implicationTransitivity : (a ==> b) -> (b ==> c) -> (a ==> c)
 implicationTransitivity (Implies f) (Implies g) = Implies (g . f)
 

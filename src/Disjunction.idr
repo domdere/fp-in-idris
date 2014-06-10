@@ -33,18 +33,21 @@ data (/\) : Type -> Type -> Type where
     ||| @ a A proof for A
     ||| @ b A proof for B
     |||
-    Conj : (a, b) -> a /\ b
+    Split : a -> b -> a /\ b
 
 ||| If A -> P and B -> P then (A \\/ B) -> P
 |||
 total
 disjunctInd : ((a ==> p) /\ (b ==> p)) -> (a \/ b) ==> p
-disjunctInd (Conj (Implies l, Implies r)) = Implies (go l r)
+disjunctInd (Split (Implies l) (Implies r)) = Implies (go l r)
 where
     go : (a -> p) -> (b -> p) -> (a \/ b) -> p
     go l' r' (LeftP lprf) = l' lprf
     go l' r' (RightP rprf) = r' rprf
 
+total
+modusPonens : ((a ==> b) /\ a) -> b
+modusPonens (Split (Implies f) x) = f x
 
 -- Test it with a list..
 
@@ -55,52 +58,38 @@ inList : a -> List a -> Type
 inList _ Nil        = _|_
 inList x (y :: ys)  = (x = y) \/ (inList x ys)
 
-using (a: Type, xs' : List a)
-    total
-    myListInd : (p : List a -> Type) -> (mx : List a) -> p Nil -> ((x : a) -> (xs' : List a) -> p xs' -> p (x :: xs')) -> p mx
-    myListInd p Nil baseCase indCase        = baseCase
-    myListInd p (x :: xs') baseCase indCase = indCase x xs' (myListInd p xs' baseCase indCase)
-
 testLemma1 : (x : a) -> (y : a) -> (xs : List a) -> (x = y) -> inList x (y :: xs)
 testLemma1 x y xs h1 = ?testLemma1Proof
 
-mapValueStillInListIndCaseHeadSame : (f : a -> b) -> (x : a) -> (x' : a) -> (xs : List a) -> (inList x xs ==> inList (f x) (map f xs)) -> ((x = x') ==> inList (f x) (map f (x' :: xs)))
-mapValueStillInListIndCaseHeadSame f x x' xs headSame = Implies (\h1 => ?mapValueStillInListIndCaseHeadSameProof)
-
-mapValueStillInListIndCase : (f : a -> b) -> (x : a) -> (x' : a) -> (xs : List a) -> (inList x xs ==> inList (f x) (map f xs)) -> (inList x (x' :: xs) ==> inList (f x) (map f (x' :: xs)))
-mapValueStillInListIndCase f x x' xs (Implies ih) = ?indCaseProofTest
-
---mapProofProp : (f : a -> b) -> (x : a) -> (mx : List a) -> (inList x mx ==> inList (f x) (map f mx))
---mapProofProp f x mx = myListInd (\mx'' => inList x mx'' ==> inList (f x) (map f mx'')) mx baseCase indCase
---    where
---        baseCase : inList x Nil ==> inList (f x) (map f Nil)
---        baseCase = Implies (\h1 => ?baseCaseProof)
---
---        indCase : (x' : a) -> (mx' : List a) -> (inList x mx' ==> inList (f x) (map f mx')) -> (inList x (x' :: mx') ==> inList (f x) (map f (x' :: mx')))
---        indCase x' mx' ih = Implies (\h1 => ?indCaseProof)
-
---mapProofProp f x mx = inList x mx -> inList (f x) (map f mx)
-
---mapProof : (f : a -> b) -> (x : a) -> (mx : List a) -> (mapProofProp f x) mx
---mapProof f x mx = myListInd (mapProofProp f x) mx baseCase indCase
---    where
---        baseCase : mapProofProp f x Nil
---        baseCase = \h1 => ?baseCaseProof
---
---
---        --indCase x' xs' ih = \h1 => ?indCaseProof
---        indCase x' xs' ih = disjunctInd headEq xInTail
---            where
---                headEq h1   = ?headEqProof
---                xInTail h1  = ?xInTailProof
+total
+mapPreservesInListLemma : (f : a -> b) -> (x : a) -> (mx : List a) -> (inList x mx ==> inList (f x) (map f mx))
+mapPreservesInListLemma f x mx = ?mapProof
 
 ---------- Proofs ----------
 
-mapValueStillInListIndCaseHeadSameProof = proof
+mapProof = proof
   intros
+  induction mx
+  refine Implies
+  compute
+  intro h1
+  refine h1
+  intro x'
+  intro xs'
+  intro ih
+  compute
+  refine disjunctInd
+  refine Split
+  refine Implies
+  intro h1
   refine LeftP
   rewrite h1
   refine refl
+  refine Implies
+  intro h1
+  refine RightP
+  let mp = modusPonens (Split ih h1)
+  refine mp
 
 
 testLemma1Proof = proof
