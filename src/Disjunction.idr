@@ -10,16 +10,13 @@ infixr 2 \/
 ||| of B is a necessary and sufficient condition
 ||| to prove A \\/ B.
 |||
-data (\/) : Type -> Type -> Type where
-    ||| A Proof for A is sufficient to prove A \\/ B
-    ||| @ a A proof for the Left Proposition
-    |||
-    LeftP   : a -> (a \/ b)
-
-    ||| A Proof for B is sufficient to prove A \\/ B
-    ||| @ b A proof for the right proposition
-    |||
-    RightP  : b -> (a \/ b)
+||| A Proof for A is sufficient to prove A \\/ B (LeftP)
+|||
+||| A Proof for B is also sufficient to prove A \\/ B (RightP)
+|||
+%elim data (\/) a b =
+        LeftP a
+    |   RightP b
 
 infixr 3 /\
 
@@ -28,12 +25,12 @@ infixr 3 /\
 ||| So proofs for both cases are required to prove the
 ||| the case for A /\\ B.
 |||
-data (/\) : Type -> Type -> Type where
+%elim data (/\) a b =
     ||| Proofs for both A and B are required to prove A /\\ B
     ||| @ a A proof for A
     ||| @ b A proof for B
     |||
-    Split : a -> b -> a /\ b
+    Split a b
 
 ||| If A -> P and B -> P then (A \\/ B) -> P
 |||
@@ -58,6 +55,7 @@ inList : a -> List a -> Type
 inList _ Nil        = _|_
 inList x (y :: ys)  = (x = y) \/ (inList x ys)
 
+total
 testLemma1 : (x : a) -> (y : a) -> (xs : List a) -> (x = y) -> inList x (y :: xs)
 testLemma1 x y xs h1 = ?testLemma1Proof
 
@@ -78,18 +76,17 @@ mapProof = proof
   intro xs'
   intro ih
   compute
-  refine disjunctInd
-  refine Split
   refine Implies
   intro h1
+  induction h1
+  intro h1Left
   refine LeftP
-  rewrite h1
+  rewrite h1Left
   refine refl
-  refine Implies
-  intro h1
+  intro h1Right
   refine RightP
-  let mp = modusPonens (Split ih h1)
-  refine mp
+  let ih1 = modusPonens (Split ih h1Right)
+  refine ih1
 
 
 testLemma1Proof = proof

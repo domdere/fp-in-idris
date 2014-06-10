@@ -9,7 +9,8 @@ import Verified
         None
     |   Some a
 
--- simple eliminator
+||| simple eliminator
+|||
 total
 option : b -> (a -> b) -> Option a -> b
 option x f None     = x
@@ -49,15 +50,15 @@ using (x : a)
                 mkNo f (Contains prf) = f prf
 
 
-||| This is expressed in simpler terms using the combinators from Disjunction
-|||
+using (x : a, y : a)
+    total
+    destructOptionContains : OptionContains x (Some y) -> x = y
+    destructOptionContains (Contains prf) = prf
 
 total
-optionContains : (DecEq) => a -> Option a -> Type
+optionContains : a -> Option a -> Type
 optionContains x None     = _|_
-optionContains x (Some y) with (decEq x y)
-    optionContains x (Some x) | (Yes prf) = x = x
-    optionContains x (Some y) | (No absurd) = _|_
+optionContains x (Some y) = (x = y) ==> OptionContains x (Some y)
 
 total
 optionMap : (a -> b) -> Option a -> Option b
@@ -82,7 +83,7 @@ optionMapLemmaHard f x ma = optionInd (mappedOptionContains f x) (noneCase f x) 
 
 
 total
-optionMapLemmaEasy : (f : a -> b) -> (x : a) -> (ma : Option a) -> (optionContains x ma ==> optionContains (f x) (optionMap f ma))
+optionMapLemmaEasy : (f : a -> b) -> (x : a) -> (ma : Option a) -> (OptionContains x ma ==> OptionContains (f x) (optionMap f ma))
 optionMapLemmaEasy f x ma = ?optionMapLemmaProof
 
 total
@@ -140,11 +141,9 @@ instance Functor Option where
     map = optionMap
 
 instance VerifiedFunctor Option where
-    mapIdentity None      = ?mapIdentityNoneProof
-    mapIdentity (Some x)  = ?mapIdentitySomeProof
+    mapIdentity mx    = ?mapIdentityProof
 
-    mapComposition None     = ?mapCompositionNoneProof
-    mapComposition (Some x) = ?mapCompositionSomeProof
+    mapComposition mx = ?mapCompositionProof
 
 instance Applicative Option where
 --  pure : a -> f a
@@ -154,18 +153,17 @@ instance Applicative Option where
     (<$>) = optionApply
 
 instance VerifiedApplicative Option where
-    applicativePureId None      = ?applicativePureIdNoneProof
-    applicativePureId (Some x)  = ?applicativePureIdSomeProof
+    applicativePureId mx          = ?applicativePureIdProof
 
-    applicativeComposition None v w                   = ?applicativeCompositionOptionNoFunction
-    applicativeComposition (Some k) None w            = ?applicativeCompositionOptionNoFirstArg
-    applicativeComposition (Some k) (Some x) None     = ?applicativeCompositionOptionNoSecondArg
-    applicativeComposition (Some k) (Some x) (Some y) = ?applicativeCompositionOptionSomeEverything
+    applicativeComposition None v w                   = ?applicativeCompositionOptionUNone
+    applicativeComposition (Some f) None w            = ?applicativeCompositionOptionVNone
+    applicativeComposition (Some f) (Some g) None     = ?applicativeCompositionOptionWNone
+    applicativeComposition (Some f) (Some g) (Some x) = ?applicativeCompositionOptionAllSome
 
-    applicativeHomomorphism k x      = ?applicativeHomomorphOption
+    applicativeHomomorphism k x   = ?applicativeHomomorphOption
 
     applicativeInterchange None y     = ?applicativeInterchangeOptionNone
-    applicativeInterchange (Some k) y = ?applicativeInterchangeOptionSome
+    applicativeInterchange (Some f) y = ?applicativeInterchangeOptionSome
 
 instance Monad Option where
 --  (>>=) : m a -> (a -> m b) -> m b
@@ -174,11 +172,10 @@ instance Monad Option where
 instance VerifiedMonad Option where
     monadPureIdentityL k x = ?monadPureIdentityLOption
 
-    monadPureIdentityR None     = ?monadPureIdentityROptionNone
-    monadPureIdentityR (Some x) = ?monadPureIdentityROptionSome
+    monadPureIdentityR mx  = ?monadPureIdentityROption
 
-    monadBindAssociative k h None     = ?monadBindAssociativeNone
-    monadBindAssociative k h (Some x) = ?monadBindAssociativeSome
+    monadBindAssociative k h None     = ?monadBindAssociativeOptionNone
+    monadBindAssociative k h (Some x) = ?monadBindAssociativeOptionSome
 
     monadBindApplySame f None my            = ?monadBindApplySameOptionNone
     monadBindApplySame f (Some x) None      = ?monadBindApplySameOptionSomeNone
@@ -343,14 +340,111 @@ instance (Semigroup e) => Applicative (AccValidation e) where
 
 ---------- Proofs ----------
 
-HandlingErrors.mappedOptionSomeContainsProof = proof
+HandlingErrors.monadBindAssociativeOptionNone = proof
+  intros
+  refine refl
+
+
+HandlingErrors.monadPureIdentityROption = proof
+  intros
+  induction mx
+  compute
+  refine refl
+  intro x
+  compute
+  refine refl
+
+
+HandlingErrors.applicativeCompositionOptionAllSome = proof
+  intros
+  refine refl
+
+
+HandlingErrors.applicativeCompositionOptionWNone = proof
+  intros
+  refine refl
+
+
+HandlingErrors.applicativeCompositionOptionVNone = proof
+  intros
+  refine refl
+
+
+HandlingErrors.applicativeCompositionOptionUNone = proof
+  intros
+  refine refl
+
+
+HandlingErrors.applicativePureIdProof = proof
+  intros
+  induction mx
+  compute
+  refine refl
+  intro x
+  compute
+  refine refl
+
+
+HandlingErrors.applicativeHomomorphOption = proof
+  intros
+  refine refl
+
+
+HandlingErrors.applicativeInterchangeOptionSome = proof
+  intros
+  refine refl
+
+
+HandlingErrors.applicativeInterchangeOptionNone = proof
+  intros
+  refine refl
+
+
+mapCompositionProof = proof
+  intros
+  induction mx
+  compute
+  refine refl
+  intro x
+  compute
+  refine refl
+
+
+mapIdentityProof = proof
+  intros
+  induction mx
+  compute
+  refine refl
+  intro x
+  compute
+  refine refl
+
+
+optionMapLemmaProof = proof
+  intros
+  induction ma
+  refine Implies
+  intro h1
+  compute
+  let abs = the (OptionContains (f x) None) (absurd h1)
+  refine abs1
+  intro x'
+  refine Implies 
+  intro h1
+  let h2 = destructOptionContains h1
+  refine Contains
+  rewrite h2
+  refine refl
+
+
+mappedOptionSomeContainsProof = proof
   intros
   refine Contains
   rewrite prf
   refine refl
 
 
-HandlingErrors.joinKeepsValueLemmaProof = proof
+joinKeepsValueLemmaProof = proof
   intros
   rewrite prf
   refine Contains
@@ -371,28 +465,6 @@ monadBindApplySameOptionNone = proof
   refine refl
 
 
-monadBindAssociativeNone = proof
-  intros
-  refine refl
-
-
-monadBindAssociativeSome = proof
-  intros
-  rewrite sym (optionJoinSome (k x))
-  rewrite sym (optionJoinSome (optionJoin (optionMap h (k x))))
-  refine refl
-
-
-monadPureIdentityROptionNone = proof
-  intros
-  refine refl
-
-
-monadPureIdentityROptionSome = proof
-  intros
-  refine refl
-
-
 monadPureIdentityLOption = proof
   intros
   rewrite sym (optionJoinSome (k x))
@@ -408,76 +480,9 @@ optionJoinSomeProofSome = proof
   intros
   refine refl
 
-
-applicativeCompositionOptionNoFunction = proof
-  intros
-  refine refl
-
-
-applicativeCompositionOptionNoFirstArg = proof
-  intros
-  refine refl
-
-
-applicativeCompositionOptionNoSecondArg = proof
-  intros
-  refine refl
-
-
-applicativeCompositionOptionSomeEverything = proof
-  intros
-  refine refl
-
-
-applicativePureIdNoneProof = proof
-  intros
-  refine refl
-
-
-applicativePureIdSomeProof = proof
-  intros
-  refine refl
-
-
-applicativeHomomorphOption = proof
-  intros
-  refine refl
-
-
-applicativeInterchangeOptionNone = proof
-  intros
-  refine refl
-
-
-applicativeInterchangeOptionSome = proof
-  intros
-  refine refl
-
-
-mapCompositionNoneProof = proof
-  intros
-  refine refl
-
-
-mapCompositionSomeProof = proof
-  intros
-  refine refl
-
-
-mapIdentitySomeProof = proof
-  intros
-  refine refl
-
-
-mapIdentityNoneProof = proof
-  intros
-  refine refl
-
-
 optionSequenceSameProofBase = proof
   intros
   refine refl
-
 
 optionSequenceSameProofInd = proof
   intros

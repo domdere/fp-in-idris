@@ -9,11 +9,11 @@ infixr 2 ==>
 ||| This type is essentially a newtype for
 ||| the (->) operator
 |||
-data (==>) : Type -> Type -> Type where
+%elim data (==>) a b =
     ||| A function that takes a proof of A
     ||| to a proof of B
     |||
-    Implies : (a -> b) -> (a ==> b)
+    Implies (a -> b)
 
 infixr 2 <=>
 
