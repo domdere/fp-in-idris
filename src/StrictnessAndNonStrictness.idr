@@ -24,9 +24,9 @@ oneTwoThree = 1 :: 2 :: 3 :: Nil
 
 ||| Exercise 1 - Write a function to conver a LazyList to a List
 |||
-foldLazyList : (a -> Lazy' LazyCodata b -> b) -> b -> LazyList a -> b
+foldLazyList : (a -> Lazy' LazyCodata b -> b) -> Lazy' LazyCodata b -> LazyList a -> b
 foldLazyList f y Nil = y
-foldLazyList f y (x :: xs) = f x (foldLazyList f y xs)
+foldLazyList f y (x :: xs) = f x (Delay (foldLazyList f y xs))
 
 ||| Exercise 1 - Write a function to convert a Lazy List into a List
 |||
@@ -81,13 +81,13 @@ cycle xs = appendLazy xs (cycle xs)
 
 ||| Coinductive Proof
 |||
-appendTakeDrop
-    :   (n : Nat)
-    ->  (x : a)
-    ->  (xs : LazyList a)
-    ->  (appendLazy (lazyTake n xs) (lazyDrop n xs)) = xs
-    ->  (appendLazy (lazyTake (S n) (x :: xs)) (lazyDrop (S n) (x :: xs))) = (x :: xs)
-appendTakeDrop n x xs p = ?appendTakeDrop_rhs
+-- appendTakeDrop
+--     :   (n : Nat)
+--     ->  (x : a)
+--     ->  (xs : LazyList a)
+--     ->  (appendLazy (lazyTake n xs) (lazyDrop n xs)) = xs
+--     ->  (appendLazy (lazyTake (S n) (x :: xs)) (lazyDrop (S n) (x :: xs))) = (x :: xs)
+-- appendTakeDrop n x xs p = ?appendTakeDrop_rhs
 
 ||| Exercise 3 - Write a function takeWhile that takes elements from the list while the predicate is satisfied
 |||
@@ -345,6 +345,52 @@ zipAllUnfold xs ys = unfoldLazy go (xs, ys)
 |||
 exercise13e : LazyList a -> LazyList b -> LazyList (Maybe a, Maybe b)
 exercise13e = zipAllUnfold
+
+||| Exercise 14 - Implement startsWith using functions you've written
+||| It checks if one LazyList is a prefix of another.
+|||
+startsWithLazy : Eq a => LazyList a -> LazyList a -> Bool
+startsWithLazy xs ys = foldLazyList check False (zipAllUnfold xs ys)
+    where
+        check : Eq a => (Maybe a, Maybe a) -> Lazy' LazyCodata Bool -> Bool
+        check (Nothing, Just y) acc = True
+        check (mx, Nothing) acc     = False
+        check (Just x, Just y) acc  = (x == y) && acc
+
+||| Exercise 14 - Implement startsWith using functions you've written
+||| It checks if one LazyList is a prefix of another.
+|||
+||| See startsWithLazy
+|||
+exercise14 : Eq a => LazyList a -> LazyList a -> Bool
+exercise14 = startsWithLazy
+
+||| Exercise 15 - Implement tailsLazy with unfoldLazy
+||| e.g given (1 :: 2 :: 3 :: Nil) it should return
+||| (1 :: 2 :: 3 :: Nil) :: (2 :: 3 :: Nil) :: (3 :: Nil) :: Nil :: Nil
+|||
+tailsLazy : LazyList a -> LazyList (LazyList a)
+tailsLazy xs = unfoldLazy go (Just xs)
+    where
+        go : Maybe (LazyList a) -> Maybe (LazyList a, Maybe (LazyList a))
+        go Nothing          = Nothing
+        go (Just Nil)       = Just (Nil, Nothing)
+        go (Just (x :: xs)) = Just (x :: xs, Just xs)
+
+||| Exercise 15 - Implement tailsLazy with unfoldLazy
+||| e.g given (1 :: 2 :: 3 :: Nil) it should return
+||| (1 :: 2 :: 3 :: Nil) :: (2 :: 3 :: Nil) :: (3 :: Nil) :: Nil :: Nil.
+|||
+||| See tailsLazy
+exercise15 : LazyList a -> LazyList (LazyList a)
+exercise15 = tailsLazy
+
+||| Exercise  16 - Generalise tailsLazy to the function scanRightLazy
+||| which is like a foldLazyList that returns a LazyList of intermediate results
+|||
+scanRightLazy : (a -> Lazy' LazyCodata b -> b) -> Lazy' LazyCodata b -> LazyList a -> LazyList b
+scanRightLazy f acc = ?scanRightLazy_rhs
+
 
 
 ---------- Proofs ----------
