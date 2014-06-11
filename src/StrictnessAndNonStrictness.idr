@@ -389,10 +389,13 @@ exercise15 = tailsLazy
 ||| which is like a foldLazyList that returns a LazyList of intermediate results
 |||
 scanRightLazy : (a -> Lazy' LazyCodata b -> b) -> Lazy' LazyCodata b -> LazyList a -> LazyList b
-scanRightLazy f acc = ?scanRightLazy_rhs
+scanRightLazy f acc xs = snd (foldLazyList (go f) (acc, Nil) xs)
+    where
+        go : (a -> Lazy' LazyCodata b -> b) -> a -> Lazy' LazyCodata (Lazy' LazyCodata b, LazyList b) -> (Lazy' LazyCodata b, LazyList b)
+        go g y t = let newAcc = g y (fst t) in (Delay newAcc, newAcc :: (snd t))
 
-
-
----------- Proofs ----------
-
-
+||| Exercise  16 - Generalise tailsLazy to the function scanRightLazy
+||| which is like a foldLazyList that returns a LazyList of intermediate results
+|||
+exercise16 : (a -> Lazy' LazyCodata b -> b) -> Lazy' LazyCodata b -> LazyList a -> LazyList b
+exercise16 = scanRightLazy
