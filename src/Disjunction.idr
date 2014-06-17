@@ -32,6 +32,8 @@ infixr 3 /\
     |||
     Split a b
 
+%elim data (~) a = Not (a -> _|_)
+
 ||| If A -> P and B -> P then (A \\/ B) -> P
 |||
 total
