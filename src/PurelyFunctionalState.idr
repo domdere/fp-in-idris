@@ -72,4 +72,91 @@ instance VerifiedMonad (MyState s) where
 
 -- exercises
 
+-- I skipped the RNG related exercises as Idris' RNG and Int manipulation functions are sort of immature.
 
+||| Exercise 6 : Implement map2 for MyState
+|||
+total
+map2 : (a -> b -> c) -> MyState s a -> MyState s b -> MyState s c
+map2 = lift2MyState
+
+||| Exercise 6 : Implement map2 for MyState
+|||
+||| see map2
+|||
+total
+exercise6 : (a -> b -> c) -> MyState s a -> MyState s b -> MyState s c
+exercise6 = map2
+
+total
+traverseMyStateList : (a -> MyState s b) -> List a -> MyState s (List b)
+traverseMyStateList f xs = ?traverseMyStateList_rhs
+
+||| Exercise 7 : Implement SequenceList for a list of MyState
+|||
+total
+sequenceMyStateList : List (MyState s a) -> MyState s (List a)
+sequenceMyStateList = traverseMyStateList id
+
+||| Exercise 7 : Implement SequenceList for a list of MyState.
+|||
+||| see sequenceMyStateList
+|||
+total
+exercise7 : List (MyState s a) -> MyState s (List a)
+exercise7 = sequenceMyStateList
+
+||| Exercise 8 : Implement bindMyState
+|||
+||| see bindMyState
+|||
+total
+exercise8 : MyState s a -> (a -> MyState s b) -> MyState s b
+exercise8 = bindMyState
+
+||| Exercise 9 : Reimplement map and map2 in terms of bindMyState,
+||| (I already wrote map2 in terms of bindMyState).
+|||
+|||
+total
+mapMyState2 : (a -> b) -> MyState s a -> MyState s b
+mapMyState2 f ma = ?mapMyState2_rhs
+
+||| Exercise 9 : Reimplement map and map2 in terms of bindMyState,
+||| (I already wrote map2 in terms of bindMyState).
+|||
+||| so see mapMyState2.
+|||
+total
+exercise9 : (a -> b) -> MyState s a -> MyState s b
+exercise9 = mapMyState2
+
+-- Exercise 10 is all the Functor, Applicative and Monad functions for MyState.
+-- which is already done, see the Functor, Applicative and Monad instances for
+-- MyState,
+--
+-- Also see sequenceMyStateList
+
+||| State type for Exercise 11
+data CoinMachineState = CoinMachineS Bool Int Int
+
+total
+isLocked : CoinMachineState -> Bool
+isLocked (CoinMachineS b x y) = b
+
+total
+candies : CoinMachineState -> Int
+candies (CoinMachineS b x y) = x
+
+total
+coins : CoinMachineState -> Int
+coins (CoinMachineS b x y) = y
+
+data MachineAction = InsertCoin | TurnKnob
+
+||| Common function for MyState, gets the value of the State
+|||
+getMyState : MyState s s
+getMyState = StateAction (\x => (x, x))
+
+-- Exercise 11
