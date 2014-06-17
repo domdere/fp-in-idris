@@ -13,6 +13,11 @@ data MyState s a =
 runMyState : MyState s a -> s -> (a, s)
 runMyState (StateAction action) = action
 
+||| Like runMyState except that it drops the value and just returns the final state
+|||
+execMyState : MyState s a -> s -> s
+execMyState ma st = snd (runMyState ma st)
+
 -- Need to define the combinators, we're in a strict environment, so you have to start from the most
 -- generic one and work your way down...
 
@@ -90,8 +95,10 @@ exercise6 = map2
 
 total
 traverseMyStateList : (a -> MyState s b) -> List a -> MyState s (List b)
-traverseMyStateList f xs = ?traverseMyStateList_rhs
-
+traverseMyStateList f xs = foldr (foldFunc f) (pure (the (List b) Nil)) xs
+    where
+        foldFunc : (a -> MyState s b) -> a -> MyState s (List b) -> MyState s (List b)
+        foldFunc g x mys = lift2MyState (::) (g x) mys
 ||| Exercise 7 : Implement SequenceList for a list of MyState
 |||
 total
@@ -156,7 +163,75 @@ data MachineAction = InsertCoin | TurnKnob
 
 ||| Common function for MyState, gets the value of the State
 |||
+total
 getMyState : MyState s s
 getMyState = StateAction (\x => (x, x))
 
--- Exercise 11
+||| applies a function to the state and returns the result
+|||
+total
+getsMyState : (s -> a) -> MyState s a
+getsMyState f = mapMyState f getMyState
+
+||| This function allows you to write to the state
+|||
+total
+putMyState : s -> MyState s ()
+putMyState newState = StateAction (\oldState => ((), newState))
+
+||| Given a conditional, will run the applicative action unless the conditional is False
+|||
+||| @ b The Conditional
+||| @ action the action to run when the conditional is False
+|||
+total
+unlessA : (Applicative f) => (b : Bool) -> (action : f ()) -> f ()
+unlessA b action = if b then pure () else action
+
+total
+isOutOfCandy : MyState CoinMachineState Bool
+isOutOfCandy = do
+    candyCount <- getsMyState candies
+    pure (candyCount == 0)
+
+total
+ifCandy : MyState CoinMachineState () -> MyState CoinMachineState ()
+ifCandy action = do
+    isOut <- isOutOfCandy
+    unlessA isOut action
+
+total
+ifUnlocked : MyState CoinMachineState () -> MyState CoinMachineState ()
+ifUnlocked action = do
+    locked <- getsMyState isLocked
+    unlessA locked action
+
+total
+ifLocked : MyState CoinMachineState () -> MyState CoinMachineState ()
+ifLocked action = do
+    locked <- getsMyState isLocked
+    when locked action
+
+
+total
+runAction : MachineAction -> MyState CoinMachineState ()
+runAction InsertCoin  = ifCandy (
+    do
+        coins' <- getsMyState coins
+        candies' <- getsMyState candies
+        putMyState (CoinMachineS False candies' (coins' + 1))
+    )
+runAction TurnKnob    = ifCandy (ifUnlocked (
+    do
+        coins' <- getsMyState coins
+        candies' <- getsMyState candies
+        putMyState (CoinMachineS True (candies' - 1) coins')
+    ))
+
+initialState : Int -> Int -> CoinMachineState
+initialState = CoinMachineS True
+
+||| Exercise 11 - simulateMachine
+|||
+simulationMachine : (candy : Int) -> (coin : Int) -> (actions : List MachineAction) -> CoinMachineState
+simulationMachine candy coin = flip execMyState (initialState candy coin) . traverseMyStateList runAction
