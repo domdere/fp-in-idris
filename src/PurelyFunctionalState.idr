@@ -54,10 +54,17 @@ instance Applicative (MyState s) where
 
     (<$>) = applyMyState
 
+||| a lot of these are hard to prove without a notion of extensional equality for functions,
+||| since these proofs wont be used in programs,
+||| I'm happy to cheat with believe_me.
+|||
+extensionalEquality : (f : a -> b) -> (g : a -> b) -> (x : a) -> (f x = g x )-> f = g
+extensionalEquality f g x = believe_me
+
 instance VerifiedApplicative (MyState s) where
     applicativePureId v = ?applicativePureIdMyState_rhs
 
-    applicativeComposition u v w = ?applicativeCompositionMyState_rhs
+    applicativeComposition (StateAction u) (StateAction v) (StateAction w) = ?applicativeCompositionMyState_rhs
 
     applicativeHomomorphism k x = ?applicativeHomomorphismMyState_rhs
 
@@ -127,7 +134,7 @@ exercise8 = bindMyState
 |||
 total
 mapMyState2 : (a -> b) -> MyState s a -> MyState s b
-mapMyState2 f ma = ?mapMyState2_rhs
+mapMyState2 f ma = bindMyState ma (pureMyState . f)
 
 ||| Exercise 9 : Reimplement map and map2 in terms of bindMyState,
 ||| (I already wrote map2 in terms of bindMyState).
@@ -233,5 +240,6 @@ initialState = CoinMachineS True
 
 ||| Exercise 11 - simulateMachine
 |||
+total
 simulationMachine : (candy : Int) -> (coin : Int) -> (actions : List MachineAction) -> CoinMachineState
 simulationMachine candy coin = flip execMyState (initialState candy coin) . traverseMyStateList runAction
