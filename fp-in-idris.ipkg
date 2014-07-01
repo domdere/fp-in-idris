@@ -5,6 +5,7 @@ modules =   Disjunction
         ,   FunctionalDataStructures
         ,   HandlingErrors
         ,   Implication
+        ,   ProofBasedVerification
         ,   PurelyFunctionalState
         ,   Verified
 
