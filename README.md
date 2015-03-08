@@ -2,11 +2,11 @@
 
 [![Gitter chat](https://badges.gitter.im/domdere/fp-in-idris.png)](https://gitter.im/domdere/fp-in-idris)
 
->   If Scala was the only language I had tried FP with, then I would hate FP too!
+>   If scala was the only language I had to think in, I'd think functional programming was a bad idea that didn't scale, too.
 >
 >   -- *Edward Kmett*
 
-Well its not a verbatim quote, but I think he said something along those lines and I would agree on that point.
+<i>It came from [this comment](http://www.reddit.com/r/haskell/comments/1pjjy5/odersky_the_trouble_with_types_strange_loop_2013/cd3bgcu) on reddit</i>
 
 And he probably wouldn't suggest learning FP with **Idris** either...
 
