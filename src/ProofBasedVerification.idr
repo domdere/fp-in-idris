@@ -127,14 +127,14 @@ exercise18 (x :: xs') f =
 
 ProofBasedVerification.exercise18_base_rhs = proof
   intros
-  refine refl
+  refine Refl
 
 
 ProofBasedVerification.exercise1c_rhs = proof
   intros
   induction xs
   compute
-  refine refl
+  refine Refl
   intro x
   intro xs'
   intro ih
@@ -145,14 +145,14 @@ ProofBasedVerification.exercise1c_rhs = proof
   rewrite xplusO
   let commutative = plusCommutative x (sum1 xs')
   rewrite commutative
-  refine refl
+  refine Refl
 
 
 ProofBasedVerification.exercise1b_rhs = proof
   intros
   induction xs
   compute
-  refine refl
+  refine Refl
   intro x
   intro xs'
   intro ih
@@ -180,35 +180,35 @@ ProofBasedVerification.exercise1bLemma_rhs = proof
   intros
   induction y
   compute
-  refine refl
+  refine Refl
   intro y'
   intro ih
   compute
   rewrite sym ih
-  refine refl
+  refine Refl
 
 
 ProofBasedVerification.plusZero_rhs = proof
   intros
   induction x
   compute
-  refine refl
+  refine Refl
   intro x'
   intro ih
   compute
   rewrite ih
-  refine refl
+  refine Refl
 
 
 ProofBasedVerification.exercise1a_rhs = proof
   intros
   induction n
   compute
-  refine refl
+  refine Refl
   intro n1
   intro ih
   compute
   rewrite sym ih
-  refine refl
+  refine Refl
 
 

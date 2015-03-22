@@ -12,10 +12,10 @@ class Functor f => VerifiedFunctor (f : Type -> Type) where
 
 ||| An Applicative that is verified to satisfy the Applicative laws.
 class Applicative f => VerifiedApplicative (f : Type -> Type) where
-    total applicativePureId       : (v : f a) -> (pure id) <$> v = v
-    total applicativeComposition  : (u : f (b -> c)) -> (v : f (a -> b)) -> (w : f a) -> pure (.) <$> u <$> v <$> w = u <$> (v <$> w)
-    total applicativeHomomorphism : (k : a -> b) -> (x : a) -> the (f b) (pure k <$> pure x) = the (f b) (pure (k x))
-    total applicativeInterchange  : (u : f (a -> b)) -> (y : a) -> (u <$> (pure y)) = (pure (flip apply y) <$> u)
+    total applicativePureId       : (v : f a) -> (pure id) <*> v = v
+    total applicativeComposition  : (u : f (b -> c)) -> (v : f (a -> b)) -> (w : f a) -> pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
+    total applicativeHomomorphism : (k : a -> b) -> (x : a) -> the (f b) (pure k <*> pure x) = the (f b) (pure (k x))
+    total applicativeInterchange  : (u : f (a -> b)) -> (y : a) -> (u <*> (pure y)) = (pure (flip apply y) <*> u)
 
 infixr 1 >=>
 
