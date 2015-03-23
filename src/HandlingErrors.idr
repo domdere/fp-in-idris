@@ -43,10 +43,10 @@ using (x : a)
     contains : DecEq a => (x : a) -> (my : Option a) -> Dec (OptionContains x my)
     contains x None = No absurd
     contains x (Some y) with (decEq x y)
-        contains x (Some x) | (Yes refl)  = Yes (Contains refl)
+        contains x (Some x) | (Yes Refl)  = Yes (Contains Refl)
         contains x (Some y) | (No contra) = No (mkNo contra)
             where
-                mkNo : {x' : a} -> {y' : a} -> ((x' = y') -> _|_) -> OptionContains x' (Some y') -> _|_
+                mkNo : {x' : a} -> {y' : a} -> ((x' = y') -> Void) -> OptionContains x' (Some y') -> Void
                 mkNo f (Contains prf) = f prf
 
 
@@ -57,8 +57,8 @@ using (x : a, y : a)
 
 total
 optionContains : a -> Option a -> Type
-optionContains x None     = _|_
-optionContains x (Some y) = (x = y) ==> OptionContains x (Some y)
+optionContains x None     = Void
+optionContains x (Some y) = (x = y) ===> OptionContains x (Some y)
 
 total
 optionMap : (a -> b) -> Option a -> Option b
@@ -83,7 +83,7 @@ optionMapLemmaHard f x ma = optionInd (mappedOptionContains f x) (noneCase f x) 
 
 
 total
-optionMapLemmaEasy : (f : a -> b) -> (x : a) -> (ma : Option a) -> (OptionContains x ma ==> OptionContains (f x) (optionMap f ma))
+optionMapLemmaEasy : (f : a -> b) -> (x : a) -> (ma : Option a) -> (OptionContains x ma ===> OptionContains (f x) (optionMap f ma))
 optionMapLemmaEasy f x ma = ?optionMapLemmaProof
 
 total
@@ -149,8 +149,8 @@ instance Applicative Option where
 --  pure : a -> f a
     pure = Some
 
---  (<$>) : f (a -> b) -> f a -> f b
-    (<$>) = optionApply
+--  (<*>) : f (a -> b) -> f a -> f b
+    (<*>) = optionApply
 
 instance VerifiedApplicative Option where
     applicativePureId mx          = ?applicativePureIdProof
@@ -229,13 +229,13 @@ listVariance xs = (listMean xs) >>= (\mean => listMean (map (\x => pow (x - mean
 
 total
 optionSequence : List (Option a) -> Option (List a)
-optionSequence = foldr (\mx, mxs => (map (::) mx) <$> mxs) (pure Nil)
+optionSequence = foldr (\mx, mxs => (map (::) mx) <*> mxs) (pure Nil)
 
 -- Exercise 5
 
 total
 optionTraverse : (a -> Option b) -> List a -> Option (List b)
-optionTraverse f = foldr (\x, mxs => map (::) (f x) <$> mxs) (pure Nil)
+optionTraverse f = foldr (\x, mxs => map (::) (f x) <*> mxs) (pure Nil)
 
 total
 optionSequence2 : List (Option a) -> Option (List a)
@@ -293,7 +293,7 @@ instance Functor (Either' e) where
 
 instance Applicative (Either' e) where
     pure  = Right'
-    (<$>) = eitherApply
+    (<*>) = eitherApply
 
 instance Monad (Either' e) where
     (>>=) = eitherBind
@@ -301,7 +301,7 @@ instance Monad (Either' e) where
 
 total
 eitherTraverse : (a -> Either' e b) -> List a -> Either' e (List b)
-eitherTraverse f = foldr (\x, mxs => map (::) (f x) <$> mxs) (pure Prelude.List.Nil)
+eitherTraverse f = foldr (\x, mxs => map (::) (f x) <*> mxs) (pure Prelude.List.Nil)
 
 total
 eitherSequence : List (Either' e a) -> Either' e (List a)
@@ -336,7 +336,7 @@ instance Functor (AccValidation e) where
 
 instance (Semigroup e) => Applicative (AccValidation e) where
     pure = Pass
-    (<$>) = accApply
+    (<*>) = accApply
 
 ---------- Proofs ----------
 
@@ -346,87 +346,87 @@ monadBindAssociativeOptionSome = proof
   rewrite sym h1
   let h2 = optionJoinSome (optionJoin (optionMap h (k x)))
   rewrite sym h2
-  refine refl
+  refine Refl
 
 
 monadBindAssociativeOptionNone = proof
   intros
-  refine refl
+  refine Refl
 
 
 monadPureIdentityROption = proof
   intros
   induction mx
   compute
-  refine refl
+  refine Refl
   intro x
   compute
-  refine refl
+  refine Refl
 
 
 applicativeCompositionOptionAllSome = proof
   intros
-  refine refl
+  refine Refl
 
 
 applicativeCompositionOptionWNone = proof
   intros
-  refine refl
+  refine Refl
 
 
 applicativeCompositionOptionVNone = proof
   intros
-  refine refl
+  refine Refl
 
 
 applicativeCompositionOptionUNone = proof
   intros
-  refine refl
+  refine Refl
 
 
 applicativePureIdProof = proof
   intros
   induction mx
   compute
-  refine refl
+  refine Refl
   intro x
   compute
-  refine refl
+  refine Refl
 
 
 applicativeHomomorphOption = proof
   intros
-  refine refl
+  refine Refl
 
 
 applicativeInterchangeOptionSome = proof
   intros
-  refine refl
+  refine Refl
 
 
 applicativeInterchangeOptionNone = proof
   intros
-  refine refl
+  refine Refl
 
 
 mapCompositionProof = proof
   intros
   induction mx
   compute
-  refine refl
+  refine Refl
   intro x
   compute
-  refine refl
+  refine Refl
 
 
 mapIdentityProof = proof
   intros
   induction mx
   compute
-  refine refl
+  refine Refl
   intro x
   compute
-  refine refl
+  refine Refl
 
 
 optionMapLemmaProof = proof
@@ -443,58 +443,58 @@ optionMapLemmaProof = proof
   let h2 = destructOptionContains h1
   refine Contains
   rewrite h2
-  refine refl
+  refine Refl
 
 
 mappedOptionSomeContainsProof = proof
   intros
   refine Contains
   rewrite prf
-  refine refl
+  refine Refl
 
 
 joinKeepsValueLemmaProof = proof
   intros
   rewrite prf
   refine Contains
-  refine refl
+  refine Refl
 
 monadBindApplySameOptionSomeNone = proof
   intros
-  refine refl
+  refine Refl
 
 
 monadBindApplySameOptionSomeSome = proof
   intros
-  refine refl
+  refine Refl
 
 
 monadBindApplySameOptionNone = proof
   intros
-  refine refl
+  refine Refl
 
 
 monadPureIdentityLOption = proof
   intros
   rewrite sym (optionJoinSome (k x))
-  refine refl
+  refine Refl
 
 
 optionJoinSomeNone = proof
   intros
-  refine refl
+  refine Refl
 
 
 optionJoinSomeProofSome = proof
   intros
-  refine refl
+  refine Refl
 
 optionSequenceSameProofBase = proof
   intros
-  refine refl
+  refine Refl
 
 optionSequenceSameProofInd = proof
   intros
-  refine refl
+  refine Refl
 
 

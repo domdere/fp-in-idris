@@ -1,6 +1,6 @@
 module Disjunction
 
-import Implication
+import public Implication
 
 infixr 2 \/
 
@@ -35,7 +35,7 @@ infixr 3 /\
 ||| If A -> P and B -> P then (A \\/ B) -> P
 |||
 total
-disjunctInd : ((a ==> p) /\ (b ==> p)) -> (a \/ b) ==> p
+disjunctInd : ((a ===> p) /\ (b ===> p)) -> (a \/ b) ===> p
 disjunctInd (Split (Implies l) (Implies r)) = Implies (go l r)
 where
     go : (a -> p) -> (b -> p) -> (a \/ b) -> p
@@ -43,7 +43,7 @@ where
     go l' r' (RightP rprf) = r' rprf
 
 total
-modusPonens : ((a ==> b) /\ a) -> b
+modusPonens : ((a ===> b) /\ a) -> b
 modusPonens (Split (Implies f) x) = f x
 
 -- Test it with a list..
@@ -52,7 +52,7 @@ infixr 7 :::
 
 total
 inList : a -> List a -> Type
-inList _ Nil        = _|_
+inList _ Nil        = Void
 inList x (y :: ys)  = (x = y) \/ (inList x ys)
 
 total
@@ -60,7 +60,7 @@ testLemma1 : (x : a) -> (y : a) -> (xs : List a) -> (x = y) -> inList x (y :: xs
 testLemma1 x y xs h1 = ?testLemma1Proof
 
 total
-mapPreservesInListLemma : (f : a -> b) -> (x : a) -> (mx : List a) -> (inList x mx ==> inList (f x) (map f mx))
+mapPreservesInListLemma : (f : a -> b) -> (x : a) -> (mx : List a) -> (inList x mx ===> inList (f x) (map f mx))
 mapPreservesInListLemma f x mx = ?mapProof
 
 ---------- Proofs ----------
@@ -82,7 +82,7 @@ mapProof = proof
   intro h1Left
   refine LeftP
   rewrite h1Left
-  refine refl
+  refine Refl
   intro h1Right
   refine RightP
   let ih1 = modusPonens (Split ih h1Right)
@@ -93,5 +93,3 @@ testLemma1Proof = proof
   intros
   refine LeftP
   trivial
-
-

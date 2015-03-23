@@ -334,74 +334,74 @@ mapByFoldIsMapProof f (Branch left right) =
 
 mapByFoldIsMapProofBase = proof
   intros
-  refine refl
+  refine Refl
 
 
 mapByFoldIsMapProofInd = proof
   intros
   rewrite ihLeft
   rewrite ihRight
-  refine refl
+  refine Refl
 
 
 foldMaxIsMaxProofBase = proof
   intros
-  refine refl
+  refine Refl
 
 
 foldMaxIsMaxProofInd = proof
   intros
   rewrite ihLeft
   rewrite ihRight
-  refine refl
+  refine Refl
 
 
 foldSizeIsSizeProofBase = proof
   intros
-  refine refl
+  refine Refl
 
 
 foldSizeIsSizeProofInd = proof
   intros
   rewrite ihLeft
   rewrite ihRight
-  refine refl
+  refine Refl
 
 
 foldTreeIdProofBase = proof
   intros
-  refine refl
+  refine Refl
 
 
 foldTreeIdProofInd = proof
   intros
   rewrite sym ihLeft
   rewrite sym ihRight
-  refine refl
+  refine Refl
 
 
 treeMapCompositionProofInd = proof
   intros
   rewrite sym ihLeft
   rewrite sym ihRight
-  refine refl
+  refine Refl
 
 
 treeMapCompositionProofBase = proof
   intros
-  refine refl
+  refine Refl
 
 
 treeMapIdProofBase = proof
   intros
-  refine refl
+  refine Refl
 
 
 treeMapIdProofInd = proof
   intros
   rewrite sym ihLeft
   rewrite sym ihRight
-  refine refl
+  refine Refl
 
 
 appPrefixProofInd = proof
@@ -409,22 +409,22 @@ appPrefixProofInd = proof
   rewrite sym ih
   rewrite sym (eqReflexive x)
   compute
-  refine refl
+  refine Refl
 
 
 appPrefixProofBase = proof
   intros
-  refine refl
+  refine Refl
 
 
 baseCase = proof
   intros
-  refine refl
+  refine Refl
 
 
 inductiveCase = proof
   intros
   rewrite ih
-  refine refl
+  refine Refl
 
 

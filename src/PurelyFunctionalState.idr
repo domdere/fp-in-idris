@@ -46,13 +46,11 @@ instance Functor (MyState s) where
 
 instance VerifiedFunctor (MyState s) where
     mapIdentity fa = ?mapIdentityMyState_rhs
-
     mapComposition fa k g = ?mapCompositionMyState_rhs
 
 instance Applicative (MyState s) where
     pure = pureMyState
-
-    (<$>) = applyMyState
+    (<*>) = applyMyState
 
 ||| a lot of these are hard to prove without a notion of extensional equality for functions,
 ||| since these proofs wont be used in programs,
